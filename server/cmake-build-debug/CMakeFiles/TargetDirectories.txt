@@ -1,0 +1,3 @@
+/home/user/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/server.dir
+/home/user/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/user/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
