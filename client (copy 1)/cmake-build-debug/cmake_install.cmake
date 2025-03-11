@@ -1,4 +1,4 @@
-# Install script for directory: /home/user/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)
+# Install script for directory: /home/user/Desktop/Socket_Arhitecture_TCP_doma/client (copy 1)
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -57,6 +57,6 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-  file(WRITE "/home/user/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+  file(WRITE "/home/user/Desktop/Socket_Arhitecture_TCP_doma/client (copy 1)/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
 endif()

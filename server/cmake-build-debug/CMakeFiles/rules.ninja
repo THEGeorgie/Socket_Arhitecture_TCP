@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /home/user/Desktop/clion-2024.3.4/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/user/CLionProjects/Socket_Arhitecture_TCP/server -B/home/user/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug
+  command = /home/user/Desktop/clion-2024.3.4/bin/cmake/linux/x64/bin/cmake --regenerate-during-build -S/home/user/Desktop/Socket_Arhitecture_TCP_doma/server -B/home/user/Desktop/Socket_Arhitecture_TCP_doma/server/cmake-build-debug
   description = Re-running CMake...
   generator = 1
 

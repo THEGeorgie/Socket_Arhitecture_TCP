@@ -1,4 +1,4 @@
-/home/user/Desktop/clion-2024.3.4/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/user/Desktop/clion-2024.3.4/bin/ninja/linux/x64/ninja -G Ninja -S /home/user/CLionProjects/Socket_Arhitecture_TCP/client -B /home/user/CLionProjects/Socket_Arhitecture_TCP/client/cmake-build-debug
+/home/user/Desktop/clion-2024.3.4/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/user/Desktop/clion-2024.3.4/bin/ninja/linux/x64/ninja -G Ninja -S /home/user/Desktop/Socket_Arhitecture_TCP_doma/client -B /home/user/Desktop/Socket_Arhitecture_TCP_doma/client/cmake-build-debug
 -- The C compiler identification is GNU 13.3.0
 -- Detecting C compiler ABI info
 -- Detecting C compiler ABI info - done
@@ -7,4 +7,4 @@
 -- Detecting C compile features - done
 -- Configuring done (0.2s)
 -- Generating done (0.0s)
--- Build files have been written to: /home/user/CLionProjects/Socket_Arhitecture_TCP/client/cmake-build-debug
+-- Build files have been written to: /home/user/Desktop/Socket_Arhitecture_TCP_doma/client/cmake-build-debug

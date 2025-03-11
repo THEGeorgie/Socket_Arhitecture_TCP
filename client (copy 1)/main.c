@@ -1,3 +1,7 @@
+/*
+** client.c -- a stream socket client demo
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -7,9 +11,11 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+
 #include <arpa/inet.h>
 
 #define PORT "3490" // the port client will be connecting to
+
 #define MAXDATASIZE 100 // max number of bytes we can get at once
 
 // get sockaddr, IPv4 or IPv6:
@@ -50,20 +56,7 @@ int main(int argc, char *argv[])
                 p->ai_protocol)) == -1) {
             perror("client: socket");
             continue;
-        }
-
-        // Binding the socket to a specific local address (your own IP address)
-        struct sockaddr_in my_addr;
-        memset(&my_addr, 0, sizeof(my_addr));
-        my_addr.sin_family = AF_INET;
-        my_addr.sin_port = htons(PORT);
-        inet_pton(AF_INET, "127.0.0.3", &(my_addr.sin_addr));
-
-        if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1) {
-            perror("client: bind");
-            close(sockfd);
-            continue;
-        }
+                }
 
         if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             perror("client: connect");
@@ -84,25 +77,46 @@ int main(int argc, char *argv[])
     printf("client: connecting to %s\n", s);
 
     freeaddrinfo(servinfo); // all done with this structure
-    while (1) {
-        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-            perror("recv");
-            exit(1);
+
+    pid_t pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        exit(1);
+    }
+
+    if (pid == 0) {
+        while (1) {
+            if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+                perror("recv");
+                exit(1);
+            }
+            if (numbytes == 0) {
+                printf("client: connection closed\n");
+                exit(0);
+            }
+
+            buf[numbytes] = '\0';
+
+            printf("client: received '%s'\n",buf);
+        }
+    }
+    else {
+        while (1) {
+            sleep(1);
+            printf("Enter a message: ");
+            scanf("%s", buf);
+            buf[strlen(buf)] = '\0';
+            printf("client: sending '%s'\n",buf);
+            if (send(sockfd, buf, strlen(buf), 0) == -1) {
+                perror("send");
+            }
         }
 
-        buf[numbytes] = '\0';
-        printf("client: received '%s'\n",buf);
 
-        /*
-        printf("client: enter message to send: ");
-        scanf("%[^\n]%*c", buf);
-        if (send(sockfd, buf, strlen(buf), 0) == -1) {
-            perror("send");
-        }
-        */
     }
 
     close(sockfd);
 
     return 0;
 }
+
