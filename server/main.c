@@ -16,6 +16,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <signal.h>
+#include <time.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -66,12 +67,16 @@ int main(void) {
     int rv;
     char *buf[MAXDATASIZE];
     int numbytes = 0;
+    time_t now;
+    struct tm * local_time;
+    char time_str[9];
+    char msg[MAXDATASIZE];
 
     int shmid;
     key_t key = IPC_PRIVATE; // Use a unique key
 
     // Create the shared memory segment
-    size_t shared_size = sizeof(int) + MAXDATASIZE;
+    size_t shared_size = sizeof(int) + MAXDATASIZE + BACKLOG;
     if ((shmid = shmget(key, shared_size, IPC_CREAT | 0666)) < 0) {
         perror("shmget");
         exit(1);
@@ -86,7 +91,7 @@ int main(void) {
 
     int *broadcast = (int *) shmaddr;
     char *broadcast_msg = (char *) (broadcast + 1); // char array starts after the int
-
+    int * client_list = (int *) (broadcast + 1 + MAXDATASIZE);
     *broadcast = 0;
 
     sem_t mutex;
@@ -159,6 +164,15 @@ int main(void) {
             continue;
         }
 
+        sem_wait(&mutex);
+        for (int i = 0; i < BACKLOG; i++) {
+            if (client_list[i] == 0) {
+                client_list[i] = new_fd;
+                break;
+            }
+        }
+        sem_post(&mutex);
+
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr *) &their_addr),
                   s, sizeof s);
@@ -167,8 +181,14 @@ int main(void) {
         if (!fork()) {
             // this is the child process
             close(sockfd); // child doesn't need the listener
-            if (send(new_fd, "Wellcome!", strlen("Wellcome!"), 0) == -1)
+            time(&now);
+            local_time = localtime(&now);
+
+            sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
+            snprintf(msg, sizeof(msg), "from: sender Wellcome!:%s", time_str);
+            if (send(new_fd, msg, sizeof(msg), 0) == -1)
                 perror("send");
+
             pid_t pidGchild = fork();
             if (pidGchild == -1) {
                 perror("fork");
@@ -180,13 +200,25 @@ int main(void) {
                     perror("recv");
                 } else if (numbytes == 0) {
                     printf("server: connection closed\n");
+                    sem_wait(&mutex);
+                    for (int i = 0; i < BACKLOG; i++) {
+                        if (client_list[i] == new_fd) {
+                            client_list[i] = 0;
+                            break;
+                        }
+                    }
+                    sem_post(&mutex);
                     break;
                 }
 
                 buf[numbytes] = '\0';
 
                 sem_wait(&mutex);
-                strcpy(broadcast_msg, buf);
+                time(&now);
+                local_time = localtime(&now);
+                sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
+                snprintf(msg, sizeof(msg), "from: client(%d) %s:%s", new_fd, buf, time_str);
+                strcpy(broadcast_msg, msg);
                 *broadcast = 1;
                 sem_post(&mutex);
 
@@ -196,7 +228,6 @@ int main(void) {
                         sem_wait(&mutex);
                         if (*broadcast == 1) {
                             printf("server: sending broadcast message from proces %d;\n", new_fd);
-                            printf("server: sending: %s\n", broadcast_msg);
                             if (send(new_fd, broadcast_msg, strlen(broadcast_msg), 0) == -1) {
                                 perror("send");
                             }

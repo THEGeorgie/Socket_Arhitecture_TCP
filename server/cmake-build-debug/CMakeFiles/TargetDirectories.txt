@@ -1,3 +1,3 @@
-/home/user/Desktop/Socket_Arhitecture_TCP_doma/server/cmake-build-debug/CMakeFiles/server.dir
-/home/user/Desktop/Socket_Arhitecture_TCP_doma/server/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/user/Desktop/Socket_Arhitecture_TCP_doma/server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/server.dir
+/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
