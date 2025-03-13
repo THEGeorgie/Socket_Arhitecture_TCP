@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
             sleep(1);
             printf("Enter a message: ");
             scanf("%s", buf);
-            buf[strlen(buf)] = '\0';
             if (send(sockfd, buf, strlen(buf), 0) == -1) {
                 perror("send");
             }

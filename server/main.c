@@ -40,13 +40,6 @@ void sigchld_handler(int s) {
     errno = saved_errno;
 }
 
-typedef struct {
-    char *broadcast_msg;
-    int *broadcast;
-    pthread_mutex_t *mutex;
-} SharedMemory;
-
-
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
     if (sa->sa_family == AF_INET) {
@@ -185,7 +178,7 @@ int main(void) {
             local_time = localtime(&now);
 
             sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
-            snprintf(msg, sizeof(msg), "from: sender Wellcome!:%s", time_str);
+            snprintf(msg, sizeof(msg), "from: server Wellcome please wait!:%s", time_str);
             if (send(new_fd, msg, sizeof(msg), 0) == -1)
                 perror("send");
 
@@ -196,34 +189,9 @@ int main(void) {
             }
 
             while (1) {
-                if ((numbytes = recv(new_fd, buf, MAXDATASIZE - 1, 0)) == -1) {
-                    perror("recv");
-                } else if (numbytes == 0) {
-                    printf("server: connection closed\n");
-                    sem_wait(&mutex);
-                    for (int i = 0; i < BACKLOG; i++) {
-                        if (client_list[i] == new_fd) {
-                            client_list[i] = 0;
-                            break;
-                        }
-                    }
-                    sem_post(&mutex);
-                    break;
-                }
-
-                buf[numbytes] = '\0';
-
-                sem_wait(&mutex);
-                time(&now);
-                local_time = localtime(&now);
-                sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
-                snprintf(msg, sizeof(msg), "from: client(%d) %s:%s", new_fd, buf, time_str);
-                strcpy(broadcast_msg, msg);
-                *broadcast = 1;
-                sem_post(&mutex);
-
-
-                if (pidGchild) {
+                if (pidGchild == 0) {
+                    if (send(new_fd, "Started", strlen("Started"), 0) == -1)
+                        perror("send");
                     while (1) {
                         sem_wait(&mutex);
                         if (*broadcast == 1) {
@@ -235,11 +203,39 @@ int main(void) {
                         }
                         sem_post(&mutex);
                     }
+                }else {
+                    if ((numbytes = recv(new_fd, buf, MAXDATASIZE, 0)) == -1) {
+                        perror("recv");
+                    } else if (numbytes == 0) {
+                        printf("server: connection closed\n");
+                        sem_wait(&mutex);
+                        for (int i = 0; i < BACKLOG; i++) {
+                            if (client_list[i] == new_fd) {
+                                client_list[i] = 0;
+                                break;
+                            }
+                        }
+                        sem_post(&mutex);
+                        break;
+                    }
+
+                    buf[numbytes] = '\0';
+
+                    sem_wait(&mutex);
+                    time(&now);
+                    local_time = localtime(&now);
+                    memset(msg, 0, sizeof(msg)/sizeof(msg[0]));
+                    sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
+                    snprintf(msg, sizeof(msg), "from: client(%d) %s:%s", new_fd, buf, time_str);
+                    printf("server: sending %s\n", msg);
+                    strcpy(broadcast_msg, msg);
+                    *broadcast = 1;
+                    sem_post(&mutex);
                 }
             }
 
 
-            close(new_fd);
+            //close(new_fd);
             exit(0);
         }
     }
