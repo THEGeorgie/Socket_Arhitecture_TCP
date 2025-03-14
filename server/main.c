@@ -59,6 +59,7 @@ int main(void) {
     char s[INET6_ADDRSTRLEN];
     int rv;
     char *buf[MAXDATASIZE];
+    memset(buf, 0, MAXDATASIZE);
     int numbytes = 0;
     time_t now;
     struct tm * local_time;
@@ -88,8 +89,8 @@ int main(void) {
     *broadcast = 0;
 
     sem_t mutex;
-    sem_init(&mutex, 0, 1);
-    if (&mutex == SEM_FAILED) {
+
+    if (sem_init(&mutex, 0, 1) == -1) {
         perror("sem_open failed");
         exit(1);
     }
@@ -204,7 +205,7 @@ int main(void) {
                         sem_post(&mutex);
                     }
                 }else {
-                    if ((numbytes = recv(new_fd, buf, MAXDATASIZE, 0)) == -1) {
+                    if ((numbytes = recv(new_fd, buf, MAXDATASIZE-1, 0)) == -1) {
                         perror("recv");
                     } else if (numbytes == 0) {
                         printf("server: connection closed\n");
@@ -220,7 +221,7 @@ int main(void) {
                     }
 
                     buf[numbytes] = '\0';
-
+                    printf("server: received message: %s length: %d\n", buf, numbytes);
                     sem_wait(&mutex);
                     time(&now);
                     local_time = localtime(&now);
@@ -231,6 +232,7 @@ int main(void) {
                     strcpy(broadcast_msg, msg);
                     *broadcast = 1;
                     sem_post(&mutex);
+                    memset(buf, 0, MAXDATASIZE);
                 }
             }
 
