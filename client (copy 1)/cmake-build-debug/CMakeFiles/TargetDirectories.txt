@@ -1,3 +1,3 @@
-/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/client.dir
-/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/gogidanev/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/user/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/client.dir
+/home/user/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/user/CLionProjects/Socket_Arhitecture_TCP/client (copy 1)/cmake-build-debug/CMakeFiles/rebuild_cache.dir

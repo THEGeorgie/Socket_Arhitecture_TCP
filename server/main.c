@@ -70,7 +70,7 @@ int main(void) {
     key_t key = IPC_PRIVATE; // Use a unique key
 
     // Create the shared memory segment
-    size_t shared_size = sizeof(int) + MAXDATASIZE + BACKLOG;
+    size_t shared_size = sizeof(int) + MAXDATASIZE;
     if ((shmid = shmget(key, shared_size, IPC_CREAT | 0666)) < 0) {
         perror("shmget");
         exit(1);
@@ -85,7 +85,6 @@ int main(void) {
 
     int *broadcast = (int *) shmaddr;
     char *broadcast_msg = (char *) (broadcast + 1); // char array starts after the int
-    int * client_list = (int *) (broadcast + 1 + MAXDATASIZE);
     *broadcast = 0;
 
     sem_t mutex;
@@ -158,14 +157,6 @@ int main(void) {
             continue;
         }
 
-        sem_wait(&mutex);
-        for (int i = 0; i < BACKLOG; i++) {
-            if (client_list[i] == 0) {
-                client_list[i] = new_fd;
-                break;
-            }
-        }
-        sem_post(&mutex);
 
         inet_ntop(their_addr.ss_family,
                   get_in_addr((struct sockaddr *) &their_addr),
@@ -209,26 +200,15 @@ int main(void) {
                         perror("recv");
                     } else if (numbytes == 0) {
                         printf("server: connection closed\n");
-                        sem_wait(&mutex);
-                        for (int i = 0; i < BACKLOG; i++) {
-                            if (client_list[i] == new_fd) {
-                                client_list[i] = 0;
-                                break;
-                            }
-                        }
-                        sem_post(&mutex);
                         break;
                     }
 
                     buf[numbytes] = '\0';
-                    printf("server: received message: %s length: %d\n", buf, numbytes);
                     sem_wait(&mutex);
                     time(&now);
                     local_time = localtime(&now);
-                    memset(msg, 0, sizeof(msg)/sizeof(msg[0]));
                     sprintf(time_str, "%02d:%02d:%02d", local_time->tm_hour, local_time->tm_min, local_time->tm_sec);
                     snprintf(msg, sizeof(msg), "from: client(%d) %s:%s", new_fd, buf, time_str);
-                    printf("server: sending %s\n", msg);
                     strcpy(broadcast_msg, msg);
                     *broadcast = 1;
                     sem_post(&mutex);
